@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Country;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -21,10 +22,11 @@ class SearchController extends Controller
         }
         return $availableCountries;
     }
-
+    
     public function peoples(Request $request)
     {  
-        $users = User::select("name")->where("country", $request->country)->orderBy("name", "ASC")->get();
+        $countries = explode(", ",$request->country);
+        $users = User::whereIn("country", $countries)->get();
         return $users;
     }
 }

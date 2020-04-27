@@ -65,6 +65,7 @@
                     </div>
                 </div>
             </form>
+            <div id="error" style="color: red"></div>
             <div id="demo"></div>
         </div>
     </div>
@@ -76,29 +77,44 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.min.js"></script>
     <script>
         $( function() {
-            $( "#country" ).autocomplete({
-                source: "http://127.0.0.1:8000/countryList"
+            $('#country').tokenfield({
+                autocomplete: {
+                    source: "http://127.0.0.1:8000/countryList",
+                    delay: 100
+                },
+                showAutocompleteOnFocus: true
             });
             
             $(document).on("submit", "#searchNameByCountry", function(event){
                 event.preventDefault();
-                
-                let url = $(this).attr("action");
-                let data = $(this).serialize();
-                
-                $.ajax({
-                    url: url, 
-                    method: "post", 
-                    data: data,
-                    dataType: "JSON",
-                    success: function(response){
-                        response.forEach(fetchData);
-                        
-                        function fetchData(item, index) {
-                            document.getElementById("demo").innerHTML += index+1 + ": " + item.name + "<br>"; 
-                        }
-                    } 
-                })
+                $("#demo").text(""); 
+                if ($("#country").val().length > 0) {
+                    $("#error").text("");
+                    
+                    let url = $(this).attr("action");
+                    let data = $(this).serialize();
+                    
+                    $.ajax({
+                        url: url, 
+                        method: "post", 
+                        data: data,
+                        dataType: "JSON",
+                        success: function(response){
+                            if (!response.length ) {
+                                console.log("responase", response)
+                                $("#demo").html('<p style="color: red">Not Found</p>'); 
+                            }
+                            response.forEach(fetchData);
+                            function fetchData(item, index) {
+                                document.getElementById("demo").innerHTML += index+1 + ": " + item.name + "<br>"; 
+                            };
+                        } 
+                    })
+                }
+                else
+                {
+                    $("#error").text("Please Enter data") 
+                }
             })
         } );
     </script>
